@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="stats">
+  <div class="card">
+    <h3>Total Returns</h3>
+    <p>{{ stats.total }}</p>
+  </div>
+  <div class="card">
+    <h3>Auto Approve</h3>
+    <p>{{ stats.auto_approve }}</p>
+  </div>
+  <div class="card">
+    <h3>Auto Reject</h3>
+    <p>{{ stats.auto_reject }}</p>
+  </div>
+  <div class="card">
+    <h3>Manual Review</h3>
+    <p>{{ stats.manual }}</p>
+  </div>
+</section>
+
+<section>
+  <h2>Recent Returns</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Order</th><th>SKU</th><th>Risk</th><th>Decision</th><th>View</th></tr></thead>
+    <tbody>
+      {% for r in returns %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>{{ r.order_id }}</td>
+        <td>{{ r.sku }}</td>
+        <td>{{ '%.2f'|format(r.risk_score) }}</td>
+        <td class="{{ r.decision }}">{{ r.decision }}</td>
+        <td><a href="/returns/{{ r.id }}">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

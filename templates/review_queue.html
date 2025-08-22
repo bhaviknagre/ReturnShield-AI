@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Review Queue</h2>
+{% if pending|length == 0 %}
+<p>No items pending manual review. 🎉</p>
+{% else %}
+<table>
+  <thead><tr><th>ID</th><th>Created</th><th>Order</th><th>SKU</th><th>Risk</th><th>Open</th></tr></thead>
+  <tbody>
+  {% for r in pending %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.created_at }}</td>
+      <td>{{ r.order_id }}</td>
+      <td>{{ r.sku }}</td>
+      <td>{{ '%.2f'|format(r.risk_score) }}</td>
+      <td><a href="/returns/{{ r.id }}">Open</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

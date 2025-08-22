@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Return #{{ ret.id }}</h2>
+<div class="grid">
+  <div class="card">
+    <h3>Basics</h3>
+    <p><b>Order:</b> {{ ret.order_id }}</p>
+    <p><b>SKU:</b> {{ ret.sku }}</p>
+    <p><b>Decision:</b> <span class="{{ ret.decision }}">{{ ret.decision }}</span></p>
+    <p><b>Risk Score:</b> {{ '%.2f'|format(ret.risk_score) }}</p>
+    <p><b>Reason:</b> {{ ret.reason }}</p>
+  </div>
+  <div class="card">
+    <h3>Signals</h3>
+    <ul>
+      <li>Image Similarity: {{ '%.2f'|format(ret.similarity_score) }}</li>
+      <li>Brightness: {{ '%.2f'|format(ret.brightness) }}</li>
+      <li>Sharpness: {{ '%.2f'|format(ret.blur) }}</li>
+      <li>Metadata: {{ '%.2f'|format(ret.metadata_score) }}</li>
+      <li>Text Consistency: {{ '%.2f'|format(ret.text_consistency) }}</li>
+      <li>Customer History: {{ '%.2f'|format(ret.customer_history) }}</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Images</h3>
+    {% if ret.image_path %}
+      <img src="{{ ret.image_path.replace('/mnt/data','') }}" alt="Upload" style="max-width:100%">
+    {% else %}
+      <p>No image uploaded.</p>
+    {% endif %}
+  </div>
+  
+  <div class="card">
+    <h3>Override Decision</h3>
+    <form action="/returns/{{ ret.id }}/override" method="post" class="form">
+      <label>Decision
+        <select name="decision">
+          <option value="auto_approve" {% if ret.decision=='auto_approve' %}selected{% endif %}>Approve</option>
+          <option value="manual_review" {% if ret.decision=='manual_review' %}selected{% endif %}>Manual Review</option>
+          <option value="auto_reject" {% if ret.decision=='auto_reject' %}selected{% endif %}>Reject</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea name="notes" rows="3" placeholder="Reason for override (optional)"></textarea>
+      </label>
+      <button type="submit">Save Override</button>
+      <p style="margin-top:8px;color:#666">Overrides are appended to the case notes.</p>
+    </form>
+  </div>
+</div>
+{% endblock %}

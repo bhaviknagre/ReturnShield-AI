@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Metrics</h2>
+<section class="stats">
+  <div class="card"><h3>Total</h3><p>{{ stats.total }}</p></div>
+  <div class="card"><h3>Auto Approve</h3><p>{{ stats.auto_approve }}</p></div>
+  <div class="card"><h3>Auto Reject</h3><p>{{ stats.auto_reject }}</p></div>
+  <div class="card"><h3>Manual Review</h3><p>{{ stats.manual }}</p></div>
+  <div class="card"><h3>Avg Risk</h3><p>{{ '%.2f'|format(stats.avg_risk or 0) }}</p></div>
+</section>
+<p>Tip: Tune thresholds with environment variables <code>AUTO_APPROVE_THRESHOLD</code> and <code>AUTO_REJECT_THRESHOLD</code> and watch how these metrics change.</p>
+{% endblock %}
