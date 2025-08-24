@@ -1,9 +1,4 @@
 def text_consistency_score(reason: str, order_info: dict):
-    """
-    Very lightweight heuristic:
-    - Longer, specific reasons score higher.
-    - Obvious mismatches reduce score (e.g., size mismatch but order has no size).
-    """
     text = reason.lower().strip()
     score = 0.2 if len(text) < 20 else 0.5
     if any(w in text for w in ["defect", "damaged", "rip", "broken", "stain", "scratch"]):
