@@ -39,7 +39,7 @@ class ReturnRequest(Base):
     text_consistency = Column(Float, default=0.0)
     customer_history = Column(Float, default=0.0)
     risk_score = Column(Float, default=0.0)
-    decision = Column(String, default="manual_review")  # auto_approve, auto_reject, manual_review
+    decision = Column(String, default="manual_review") 
     notes = Column(Text, nullable=True)
 
     customer = relationship("Customer", back_populates="returns")
