@@ -22,7 +22,6 @@ CATALOG_DIR = os.path.join(os.path.dirname(__file__), "catalog_images")
 
 app = FastAPI(title="Smart Returns AI", version="1.1.0")
 
-# --- Tunable thresholds (adjust for your business) ---
 AUTO_APPROVE_THRESHOLD = float(os.getenv("AUTO_APPROVE_THRESHOLD", "0.35"))
 AUTO_REJECT_THRESHOLD = float(os.getenv("AUTO_REJECT_THRESHOLD", "0.75"))
 
@@ -37,7 +36,6 @@ templates = Jinja2Templates(
 
 # Initialize DB
 Base.metadata.create_all(bind=engine)
-# Seed
 with next(get_db()) as db:
     seed(db)
 
@@ -46,7 +44,6 @@ def compute_customer_history(customer: Customer) -> float:
     if not customer or (customer.total_orders or 0) == 0:
         return 0.5
     rate = (customer.total_returns or 0) / max(1, customer.total_orders)
-    # Lower return rate -> better score
     return float(max(0.0, min(1.0, 1.0 - rate)))
 
 
@@ -106,7 +103,7 @@ async def create_return(
     image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
-    # Lookup or create customer
+    #create customer
     customer = db.query(Customer).filter_by(email=customer_email).first()
     if not customer:
         customer = Customer(
@@ -135,16 +132,11 @@ async def create_return(
     # Save uploaded image
     image_path = None
     if image:
-        # Create directories if they don't exist
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         os.makedirs(CATALOG_DIR, exist_ok=True)
-
-        # Get file extension from original filename
         _, ext = os.path.splitext(image.filename)
         if not ext:
-            ext = ".jpg"  # Default extension if none provided
-
-        # Create safe filename with proper extension
+            ext = ".jpg"
         safe_filename = f"{order_id}{ext}".replace(" ", "_")
         dest = os.path.join(UPLOAD_DIR, safe_filename)
 
@@ -158,11 +150,11 @@ async def create_return(
             from PIL import Image
 
             img = Image.open(dest)
-            img.verify()  # Verify it's a valid image
+            img.verify() 
             image_path = dest
         except Exception:
             if os.path.exists(dest):
-                os.remove(dest)  # Clean up invalid file
+                os.remove(dest)  
             raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Compute features
@@ -180,7 +172,7 @@ async def create_return(
     # Low similarity, very low brightness, very low blur, low metadata, low text consistency, poor history -> higher risk
     risk = (
         (1.0 - sim) * 0.35
-        + (0.5 - abs(bright - 0.5)) * 0.10  # prefer mid brightness
+        + (0.5 - abs(bright - 0.5)) * 0.10  
         + (1.0 - blur) * 0.10
         + (1.0 - meta) * 0.10
         + (1.0 - text_score) * 0.20
@@ -238,7 +230,6 @@ async def override_decision(rid: int, request: Request, db: Session = Depends(ge
     if new_decision not in {"auto_approve", "manual_review", "auto_reject"}:
         return HTMLResponse("Invalid decision", status_code=400)
     ret.decision = new_decision
-    # append notes
     if notes:
         if ret.notes:
             ret.notes += f"\nOVERRIDE: {notes}"
